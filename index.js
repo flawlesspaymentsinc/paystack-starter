@@ -1,3 +1,5 @@
+require('dotenv').config();
+const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
 const express = require('express');
 const bodyParser = require('body-parser');
 
