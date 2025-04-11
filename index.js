@@ -30,7 +30,35 @@ app.post('/initialize-payment', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+app.get("/callback", async (req, res) => {
+  const code = req.query.code;
 
+  if (!code) {
+    return res.status(400).send("No authorization code provided");
+  }
+
+  try {
+    const response = await axios.post(
+      "https://api.paystack.co/connect/token",
+      { code },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const { access_token, account_id, subaccount } = response.data;
+
+    console.log("Merchant onboarded:", { access_token, account_id, subaccount });
+
+    res.send("Merchant onboarding successful!");
+  } catch (error) {
+    console.error("Token exchange failed", error.response?.data || error.message);
+    res.status(500).send("Something went wrong during onboarding");
+  }
+});
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
